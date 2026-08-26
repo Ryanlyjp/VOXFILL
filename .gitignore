@@ -1,0 +1,16 @@
+# Runtime state and debug screenshots stay local, while the placeholder keeps
+# the directory present after a fresh clone.
+/data/*
+!/data/.gitkeep
+
+# Local configuration can contain panel credentials and host-specific URLs.
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+.venv/
+playwright-report/
+test-results/
+progress.md

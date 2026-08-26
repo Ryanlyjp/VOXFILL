@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voxtry 本地填表面板</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260824-2">
+</head>
+<body>
+  <div id="loginMask" class="mask">
+    <form id="loginForm" class="login-card">
+      <h1>Voxtry</h1>
+      <p>本地 Playwright 填表面板</p>
+      <input id="loginPassword" type="password" placeholder="面板密码" autocomplete="current-password" required>
+      <button>登录</button>
+      <div id="loginError" class="error"></div>
+    </form>
+  </div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div><h1>Voxtry</h1><span>本地表单填充 · 批量任务</span></div>
+      <nav class="page-tabs" aria-label="页面切换">
+        <button class="page-tab active" data-page="formPage">填表</button>
+        <button class="page-tab" data-page="generatorPage">随机生成</button>
+      </nav>
+      <div class="actions"><button id="saveAll">保存输入</button><button id="logout" class="muted">退出</button></div>
+    </header>
+
+    <section id="formPage" class="page-view">
+    <section class="card task-card">
+      <div class="card-title"><h2>任务控制</h2><span id="runtimeStatus" class="status idle">未运行</span></div>
+      <div class="form-grid">
+        <label>目标 URL<input id="targetUrl" type="url" placeholder="https://voxi.co.uk/sim-only-plans"></label>
+        <label>超时（毫秒）<input id="timeoutMs" type="number" min="1000" step="500"></label>
+        <label>结算等待时间（分钟）<input id="settlementWaitMinutes" type="number" min="0" step="0.5"></label>
+        <label>任务次数<input id="taskCount" type="number" min="1" step="1"></label>
+        <label>并发数<input id="concurrency" type="number" min="1" step="1"></label>
+      </div>
+      <div class="row controls"><button id="startRun" class="primary">开始任务</button><button id="stopRun" class="danger">停止</button><button id="saveSettings">保存任务设置</button><span id="settingsState" class="hint"></span></div>
+      <div id="runtimeInfo" class="runtime"></div>
+      <div class="log-header"><strong>运行日志</strong><label class="check"><input id="autoScrollLogs" type="checkbox" checked>自动滚动</label></div>
+      <pre id="log">等待任务...</pre>
+      <div id="screenshots" class="screenshots"></div>
+    </section>
+
+    <section class="grid two">
+      <article class="card">
+        <div class="card-title"><h2>邮箱队列</h2><span id="emailCount"></span></div>
+        <p class="hint">一行一个，按录入顺序消费；已使用的邮箱会自动跳过。</p>
+        <textarea id="emails" rows="12" placeholder="first@example.com&#10;second@example.com"></textarea>
+        <div class="row between"><button id="resetEmailMarks" class="danger">清除全部已用标记</button><span id="emailSaveState" class="hint"></span></div>
+        <div id="emailTable" class="queue"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-title"><h2>邮编池</h2><span id="postcodeCount"></span></div>
+        <p class="hint">一行一个；每次任务随机选择一个，并随机选择页面返回的地址候选。</p>
+        <textarea id="postcodes" rows="12" placeholder="M14 7HX&#10;SW1A 1AA"></textarea>
+        <div id="postcodeSaveState" class="hint"></div>
+      </article>
+    </section>
+
+    <details class="card">
+      <summary class="collapsible-title"><h2>任务记录</h2></summary>
+      <div class="row between record-actions"><span class="hint">每次任务的邮箱和结果</span><button id="clearTaskRecords" class="danger">删除全部记录</button></div>
+      <div id="taskRecords" class="task-records"></div>
+    </details>
+
+    <section class="card">
+      <details>
+        <summary>Playwright 与代理池设置</summary>
+        <div class="form-grid">
+          <label class="check"><input id="followPlanFlow" type="checkbox">从首页进入套餐列表</label>
+          <label class="check"><input id="headless" type="checkbox">无头模式</label>
+          <label class="check"><input id="debugMode" type="checkbox">Debug 模式：失败卡点自动截图</label>
+          <label class="check"><input id="clickCancel" type="checkbox">任务结束时点击 Cancel</label>
+          <label>邮箱选择器<input id="emailSelector"></label>
+          <label>名字选择器<input id="firstNameSelector"></label>
+          <label>姓氏选择器<input id="lastNameSelector"></label>
+          <label>出生日期-日选择器<input id="dobDaySelector"></label>
+          <label>出生日期-月选择器<input id="dobMonthSelector"></label>
+          <label>出生日期-年选择器<input id="dobYearSelector"></label>
+          <label>邮编选择器<input id="postcodeSelector"></label>
+          <label>邮编触发器<input id="postcodeTriggerSelector"></label>
+          <label>地址下拉框<input id="addressSelector"></label>
+          <label>密码选择器<input id="passwordSelector"></label>
+          <label>PIN 选择器<input id="pinSelector"></label>
+          <label>记忆词选择器<input id="memorableWordSelector"></label>
+          <label>同意条款选择器<input id="consentSelector"></label>
+          <label>支付页 Cancel 选择器<input id="paymentCancelSelector"></label>
+          <label>套餐入口选择器<input id="planLinkSelector"></label>
+          <label>选择套餐按钮<input id="choosePlanSelector"></label>
+          <label>Continue 选择器<input id="continueSelector"></label>
+          <label>Cookie 必要同意按钮<input id="cookieRejectSelector"></label>
+        </div>
+        <label>代理池（一行一个，支持 http://、https://、socks5://；留空直连）<textarea id="proxyPool" rows="5"></textarea></label>
+        <label class="check"><input id="proxyRotation" type="checkbox">每次任务随机选择代理</label>
+      </details>
+    </section>
+    </section>
+
+    <section id="generatorPage" class="page-view hidden">
+      <section class="card generator-toolbar">
+        <div>
+          <h2>随机生成</h2>
+          <p class="hint">按当前邮编池生成随机资料，并保存到资料卡库。</p>
+        </div>
+        <button id="generateProfile" class="primary">生成资料</button>
+      </section>
+      <details class="card" open>
+        <summary class="collapsible-title"><h2>资料卡库</h2><span id="profileCardCount" class="hint"></span></summary>
+        <div id="profileCards" class="profile-cards"></div>
+      </details>
+    </section>
+  </main>
+  <script src="/static/app.js?v=20260824-2"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+services:
+  flaresolverr:
+    build:
+      context: ./flaresolverr
+      dockerfile: Dockerfile
+    environment:
+      LOG_LEVEL: info
+      CAPTCHA_SOLVER: none
+      TZ: UTC
+    expose:
+      - "8191"
+    restart: unless-stopped
+    shm_size: "2gb"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8191/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  voxtry:
+    build: .
+    image: voxtry:local
+    container_name: voxtry
+    ports:
+      - "127.0.0.1:${VOXTRY_PORT:-48765}:8765"
+    environment:
+      PANEL_PASSWORD: ${PANEL_PASSWORD:-admin}
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      TARGET_URL: ${TARGET_URL:-https://voxi.co.uk/sim-only-plans}
+      VOXTRY_FLARESOLVERR_URL: http://flaresolverr:8191/v1
+      VOXTRY_FLARESOLVERR_TIMEOUT_MS: ${VOXTRY_FLARESOLVERR_TIMEOUT_MS:-180000}
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    shm_size: "1gb"
+    depends_on:
+      - flaresolverr
+    restart: unless-stopped
