@@ -17,8 +17,38 @@ from proxy_pool import ProxyPool, mask_proxy, parse_proxy_pool, to_playwright_pr
 from storage import Store
 
 
-FIRST_NAMES = ["Ava", "Chloe", "Ella", "Haily", "Isla", "Lily", "Maya", "Sophie"]
-LAST_NAMES = ["Bennett", "Carter", "Gilson", "Harris", "Morgan", "Parker", "Taylor", "Wilson"]
+FIRST_NAMES = [
+    "Ava", "Chloe", "Ella", "Haily", "Isla", "Lily", "Maya", "Sophie",
+    "Amelia", "Arthur", "Benjamin", "Callum", "Clara", "Daisy", "Eleanor", "Eliza",
+    "Emily", "Ethan", "Evie", "Finley", "Florence", "Freya", "George", "Grace",
+    "Hannah", "Harriet", "Henry", "Imogen", "Jack", "Jacob", "James", "Jasper",
+    "Jessica", "Joseph", "Julia", "Leo", "Liam", "Lucy", "Maisie", "Matilda",
+    "Max", "Mia", "Michael", "Millie", "Noah", "Oliver", "Oscar", "Phoebe",
+    "Poppy", "Rosie", "Ruby", "Samuel", "Scarlett", "Sebastian", "Sienna", "Sophia",
+    "Theo", "Thomas", "Toby", "Violet", "William", "Willow", "Zachary", "Adrian",
+    "Alastair", "Anwen", "Beatrice", "Cecilia", "Cora", "Esme", "Felix", "Iris",
+    "Jude", "Kit", "Lara", "Lydia", "Naomi", "Nora", "Otis", "Penelope", "Quinn",
+    "Rafferty", "Rowan", "Sylvia", "Thea", "Wilfred", "Wren",
+]
+LAST_NAMES = [
+    "Bennett", "Carter", "Gilson", "Harris", "Morgan", "Parker", "Taylor", "Wilson",
+    "Anderson", "Bailey", "Baker", "Barnes", "Bell", "Bishop", "Black", "Booth",
+    "Brooks", "Brown", "Burton", "Campbell", "Chapman", "Clarke", "Collins", "Cooper",
+    "Cox", "Davis", "Davies", "Dawson", "Dixon", "Edwards", "Ellis", "Evans",
+    "Fisher", "Fletcher", "Foster", "Fox", "Fraser", "Gibson", "Graham", "Grant",
+    "Gray", "Green", "Griffiths", "Hall", "Hamilton", "Harding", "Harrison", "Hart",
+    "Harvey", "Hayes", "Henderson", "Hill", "Holmes", "Holt", "Hughes", "Hunter",
+    "Jackson", "James", "Jenkins", "Johnson", "Jones", "Kelly", "Kennedy", "King",
+    "Knight", "Lane", "Lawson", "Lee", "Lewis", "Lloyd", "Marshall", "Martin",
+    "Mason", "Matthews", "McCarthy", "McDonald", "Miller", "Mills", "Mitchell", "Moore",
+    "Morris", "Morrison", "Murray", "Murphy", "Nelson", "Nicholson", "Noble", "Norris",
+    "Palmer", "Pearson", "Perry", "Peters", "Phillips", "Powell", "Price", "Reed",
+    "Reid", "Richards", "Richardson", "Roberts", "Robertson", "Robinson", "Rogers", "Ross",
+    "Russell", "Ryan", "Scott", "Shaw", "Simpson", "Smith", "Spencer", "Stevens",
+    "Stewart", "Stone", "Sullivan", "Sutton", "Turner", "Vaughan", "Walker", "Wallace",
+    "Walsh", "Ward", "Warren", "Watson", "Watts", "Webb", "Wells", "West", "Wheeler",
+    "White", "Wilkinson", "Williams", "Wood", "Wright", "Young",
+]
 MEMORABLE_WORDS = ["bluebird", "ellabo", "moonlight", "pebble", "sunrise", "violet"]
 
 

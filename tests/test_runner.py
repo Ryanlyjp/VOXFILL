@@ -13,7 +13,7 @@ from storage import DEFAULT_SETTINGS
 
 
 if importlib.util.find_spec("playwright"):
-    from runner import FormRunner
+    from runner import FIRST_NAMES, LAST_NAMES, FormRunner
     from playwright.async_api import async_playwright
 else:
     FormRunner = None
@@ -157,6 +157,10 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
         years = {int(FormRunner._generate_profile()["dob_year"]) for _ in range(100)}
         self.assertTrue(years)
         self.assertTrue(all(2000 <= year <= 2004 for year in years))
+
+    def test_name_pools_are_large_enough_to_reduce_repetition(self) -> None:
+        self.assertGreaterEqual(len(FIRST_NAMES), 60)
+        self.assertGreaterEqual(len(LAST_NAMES), 80)
 
     async def test_timeout_screenshot_is_saved_before_playwright_stops(self) -> None:
         directory, store = self.make_store()
