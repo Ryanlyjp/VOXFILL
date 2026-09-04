@@ -109,10 +109,24 @@ function findProfileCard(cardId) {
 }
 
 let profileCards = [];
+let currentPage = null;
 
-function switchPage(pageId) {
+async function generateProfileCard() {
+  try {
+    const result = await api("/api/profile-cards", { method:"POST" });
+    profileCards = [result.item, ...profileCards];
+    renderProfileCards(profileCards);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function switchPage(pageId) {
+  const changed = currentPage !== pageId;
+  currentPage = pageId;
   document.querySelectorAll(".page-view").forEach((page) => page.classList.toggle("hidden", page.id !== pageId));
   document.querySelectorAll(".page-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.page === pageId));
+  if (changed && pageId === "generatorPage") await generateProfileCard();
 }
 
 function updateRuntime(runtime) {
@@ -209,15 +223,7 @@ $("taskRecords").addEventListener("click", async (event) => {
 });
 
 document.querySelectorAll(".page-tab").forEach((tab) => tab.addEventListener("click", () => switchPage(tab.dataset.page)));
-$("generateProfile").addEventListener("click", async () => {
-  try {
-    const result = await api("/api/profile-cards", { method:"POST" });
-    profileCards = [result.item, ...profileCards];
-    renderProfileCards(profileCards);
-  } catch (error) {
-    alert(error.message);
-  }
-});
+$("generateProfile").addEventListener("click", generateProfileCard);
 $("profileCards").addEventListener("click", async (event) => {
   const input = event.target.closest(".profile-copyable");
   if (input) {
@@ -259,5 +265,5 @@ $("profileCards").addEventListener("click", async (event) => {
   }
 });
 
-async function boot() { await refresh(); clearInterval(pollTimer); pollTimer = setInterval(async () => { try { const state = await api("/api/state"); renderQueue(state.emails); updateRuntime(state.runtime); renderTaskRecords(state.task_records || []); profileCards = state.profile_cards || []; renderProfileCards(profileCards); } catch (_) {} }, 1500); }
+async function boot() { await refresh(); if (currentPage === null) await switchPage("generatorPage"); else switchPage(currentPage); clearInterval(pollTimer); pollTimer = setInterval(async () => { try { const state = await api("/api/state"); renderQueue(state.emails); updateRuntime(state.runtime); renderTaskRecords(state.task_records || []); profileCards = state.profile_cards || []; renderProfileCards(profileCards); } catch (_) {} }, 1500); }
 (async () => { try { const me = await api("/api/me"); if (me.authed) { hideLogin(); await boot(); } else showLogin(); } catch (_) { showLogin(); } })();

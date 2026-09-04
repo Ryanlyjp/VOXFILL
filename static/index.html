@@ -21,13 +21,13 @@
     <header class="topbar">
       <div><h1>Voxtry</h1><span>本地表单填充 · 批量任务</span></div>
       <nav class="page-tabs" aria-label="页面切换">
-        <button class="page-tab active" data-page="formPage">填表</button>
-        <button class="page-tab" data-page="generatorPage">随机生成</button>
+        <button class="page-tab" data-page="formPage">填表</button>
+        <button class="page-tab active" data-page="generatorPage">随机生成</button>
       </nav>
       <div class="actions"><button id="saveAll">保存输入</button><button id="logout" class="muted">退出</button></div>
     </header>
 
-    <section id="formPage" class="page-view">
+    <section id="formPage" class="page-view hidden">
     <section class="card task-card">
       <div class="card-title"><h2>任务控制</h2><span id="runtimeStatus" class="status idle">未运行</span></div>
       <div class="form-grid">
@@ -100,7 +100,7 @@
     </section>
     </section>
 
-    <section id="generatorPage" class="page-view hidden">
+    <section id="generatorPage" class="page-view">
       <section class="card generator-toolbar">
         <div>
           <h2>随机生成</h2>
@@ -114,6 +114,6 @@
       </details>
     </section>
   </main>
-  <script src="/static/app.js?v=20260824-2"></script>
+  <script src="/static/app.js?v=20260903-1"></script>
 </body>
 </html>
