@@ -14,3 +14,4 @@ __pycache__/
 playwright-report/
 test-results/
 progress.md
+/docs/

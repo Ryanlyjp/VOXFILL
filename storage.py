@@ -167,6 +167,16 @@ class Store:
             self._save()
             return True
 
+    def delete_unpinned_profile_cards(self) -> int:
+        with self._lock:
+            cards = self._state.get("profile_cards", [])
+            kept = [card for card in cards if card.get("pinned", False)]
+            deleted = len(cards) - len(kept)
+            if deleted:
+                self._state["profile_cards"] = kept
+                self._save()
+            return deleted
+
     def claim_next_email(self) -> str | None:
         emails = self.claim_next_emails(1)
         return emails[0] if emails else None

@@ -51,6 +51,10 @@ class ProfileCardNameReq(BaseModel):
     name: str = Field(min_length=1, max_length=120)
 
 
+class ProfileCardPinReq(BaseModel):
+    pinned: bool
+
+
 def validate_settings(values: dict[str, Any]) -> dict[str, Any]:
     values = dict(values)
     for key, minimum, label in (
@@ -190,6 +194,7 @@ def create_profile_card() -> dict[str, Any]:
         "pin": profile["pin"],
         "memorable_word": profile["memorable_word"],
         "phone": "",
+        "pinned": False,
     }
     return {"item": store.add_profile_card(card)}
 
@@ -205,6 +210,21 @@ def rename_profile_card(card_id: str, req: ProfileCardNameReq) -> dict[str, Any]
         card for card in store.snapshot()["profile_cards"] if card.get("id") == card_id
     )
     return {"item": card}
+
+
+@app.put("/api/profile-cards/{card_id}/pin", dependencies=[Depends(require_auth)])
+def pin_profile_card(card_id: str, req: ProfileCardPinReq) -> dict[str, Any]:
+    if not store.update_profile_card(card_id, pinned=req.pinned):
+        raise HTTPException(status_code=404, detail="资料卡不存在")
+    card = next(
+        card for card in store.snapshot()["profile_cards"] if card.get("id") == card_id
+    )
+    return {"item": card}
+
+
+@app.delete("/api/profile-cards", dependencies=[Depends(require_auth)])
+def delete_unpinned_profile_cards() -> dict[str, int]:
+    return {"deleted": store.delete_unpinned_profile_cards()}
 
 
 @app.delete("/api/profile-cards/{card_id}", dependencies=[Depends(require_auth)])

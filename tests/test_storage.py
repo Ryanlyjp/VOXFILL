@@ -62,3 +62,27 @@ class ProfileCardTests(unittest.TestCase):
             self.assertEqual(reopened.snapshot()["profile_cards"][0]["name"], "已编辑资料")
             self.assertTrue(reopened.delete_profile_card("card-1"))
             self.assertEqual(reopened.snapshot()["profile_cards"], [])
+
+    def test_bulk_delete_preserves_pinned_cards(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(directory)
+            store.add_profile_card({"id": "pinned", "name": "置顶", "pinned": True})
+            store.add_profile_card({"id": "normal", "name": "普通", "pinned": False})
+            store.add_profile_card({"id": "legacy", "name": "旧卡"})
+
+            self.assertEqual(store.delete_unpinned_profile_cards(), 2)
+            self.assertEqual(
+                [card["id"] for card in store.snapshot()["profile_cards"]],
+                ["pinned"],
+            )
+
+    def test_pinning_does_not_change_card_order(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            store = Store(directory)
+            store.add_profile_card({"id": "older", "name": "较早资料"})
+            store.add_profile_card({"id": "newer", "name": "较新资料"})
+
+            self.assertTrue(store.update_profile_card("older", pinned=True))
+            cards = store.snapshot()["profile_cards"]
+            self.assertEqual([card["id"] for card in cards], ["newer", "older"])
+            self.assertTrue(cards[1]["pinned"])

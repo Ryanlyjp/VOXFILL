@@ -69,11 +69,12 @@ function profileField(label, value, key) {
 
 function renderProfileCards(items) {
   $("profileCardCount").textContent = `${items.length} 张`;
+  $("clearProfileCards").disabled = !items.some((card) => !card.pinned);
   $("profileCards").innerHTML = items.length
-    ? items.map((card) => `<article class="profile-card" data-profile-id="${escapeHtml(card.id)}">
+    ? items.map((card) => `<article class="profile-card ${card.pinned ? "pinned" : ""}" data-profile-id="${escapeHtml(card.id)}">
         <div class="profile-card-header">
           <div class="profile-card-name"><strong>${escapeHtml(card.name)}</strong><button class="icon-button edit-profile" data-profile-id="${escapeHtml(card.id)}" aria-label="编辑名称" title="编辑名称">✎</button></div>
-          <div class="profile-card-actions"><button class="primary profile-copy-all" data-profile-id="${escapeHtml(card.id)}">全部复制</button><button class="danger profile-delete" data-profile-id="${escapeHtml(card.id)}">删除</button></div>
+          <div class="profile-card-actions"><button class="profile-pin ${card.pinned ? "active" : ""}" data-profile-id="${escapeHtml(card.id)}" aria-label="${card.pinned ? "取消固定" : "固定资料卡"}" aria-pressed="${card.pinned ? "true" : "false"}" title="${card.pinned ? "取消固定" : "固定资料卡"}">📌</button><button class="primary profile-copy-all" data-profile-id="${escapeHtml(card.id)}">全部复制</button><button class="danger profile-delete" data-profile-id="${escapeHtml(card.id)}">删除</button></div>
         </div>
         <div class="profile-fields">
           ${profileField("邮箱：", card.email, "email")}
@@ -110,6 +111,23 @@ function findProfileCard(cardId) {
 
 let profileCards = [];
 let currentPage = null;
+let confirmResolver = null;
+
+function confirmInPanel(title, message, confirmLabel) {
+  $("confirmTitle").textContent = title;
+  $("confirmMessage").textContent = message;
+  $("confirmAccept").textContent = confirmLabel;
+  $("confirmMask").classList.remove("hidden");
+  $("confirmAccept").focus();
+  return new Promise((resolve) => { confirmResolver = resolve; });
+}
+
+function closePanelConfirm(confirmed) {
+  $("confirmMask").classList.add("hidden");
+  const resolve = confirmResolver;
+  confirmResolver = null;
+  if (resolve) resolve(confirmed);
+}
 
 async function generateProfileCard() {
   try {
@@ -224,6 +242,27 @@ $("taskRecords").addEventListener("click", async (event) => {
 
 document.querySelectorAll(".page-tab").forEach((tab) => tab.addEventListener("click", () => switchPage(tab.dataset.page)));
 $("generateProfile").addEventListener("click", generateProfileCard);
+$("clearProfileCards").addEventListener("click", async () => {
+  const removableCount = profileCards.filter((card) => !card.pinned).length;
+  if (!removableCount) return;
+  const confirmed = await confirmInPanel(
+    "删除未固定资料卡",
+    `将删除 ${removableCount} 张未固定资料卡，固定资料卡会保留。`,
+    "全部删除",
+  );
+  if (!confirmed) return;
+  try {
+    await api("/api/profile-cards", { method:"DELETE" });
+    profileCards = profileCards.filter((card) => card.pinned);
+    renderProfileCards(profileCards);
+  } catch (error) {
+    alert(error.message);
+  }
+});
+$("confirmCancel").addEventListener("click", () => closePanelConfirm(false));
+$("confirmAccept").addEventListener("click", () => closePanelConfirm(true));
+$("confirmMask").addEventListener("click", (event) => { if (event.target === $("confirmMask")) closePanelConfirm(false); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !$("confirmMask").classList.contains("hidden")) closePanelConfirm(false); });
 $("profileCards").addEventListener("click", async (event) => {
   const input = event.target.closest(".profile-copyable");
   if (input) {
@@ -237,6 +276,16 @@ $("profileCards").addEventListener("click", async (event) => {
   const cardId = button.dataset.profileId || button.closest("[data-profile-id]")?.dataset.profileId;
   const card = findProfileCard(cardId);
   if (!card) return;
+  if (button.classList.contains("profile-pin")) {
+    try {
+      const result = await api(`/api/profile-cards/${encodeURIComponent(card.id)}/pin`, { method:"PUT", body:JSON.stringify({ pinned:!card.pinned }) });
+      profileCards = profileCards.map((item) => item.id === card.id ? result.item : item);
+      renderProfileCards(profileCards);
+    } catch (error) {
+      alert(error.message);
+    }
+    return;
+  }
   if (button.classList.contains("profile-copy-all")) {
     await copyText(profileCardText(card));
     return;
@@ -254,7 +303,10 @@ $("profileCards").addEventListener("click", async (event) => {
     return;
   }
   if (button.classList.contains("profile-delete")) {
-    if (!confirm(`删除资料卡“${card.name}”？`)) return;
+    if (card.pinned) {
+      const confirmed = await confirmInPanel("删除固定资料卡", `资料卡“${card.name}”已固定，确定仍要删除吗？`, "确认删除");
+      if (!confirmed) return;
+    }
     try {
       await api(`/api/profile-cards/${encodeURIComponent(card.id)}`, { method:"DELETE" });
       profileCards = profileCards.filter((item) => item.id !== card.id);

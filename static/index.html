@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Voxtry 本地填表面板</title>
-  <link rel="stylesheet" href="/static/style.css?v=20260824-2">
+  <link rel="stylesheet" href="/static/style.css?v=20260917-1">
 </head>
 <body>
   <div id="loginMask" class="mask">
@@ -15,6 +15,14 @@
       <button>登录</button>
       <div id="loginError" class="error"></div>
     </form>
+  </div>
+
+  <div id="confirmMask" class="confirm-mask hidden">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <h2 id="confirmTitle">确认删除</h2>
+      <p id="confirmMessage"></p>
+      <div class="confirm-actions"><button id="confirmCancel">取消</button><button id="confirmAccept" class="danger">删除</button></div>
+    </section>
   </div>
 
   <main class="shell">
@@ -106,7 +114,7 @@
           <h2>随机生成</h2>
           <p class="hint">按当前邮编池生成随机资料，并保存到资料卡库。</p>
         </div>
-        <button id="generateProfile" class="primary">生成资料</button>
+        <div class="generator-actions"><button id="generateProfile" class="primary">生成资料</button><button id="clearProfileCards" class="danger">全部删除</button></div>
       </section>
       <details class="card" open>
         <summary class="collapsible-title"><h2>资料卡库</h2><span id="profileCardCount" class="hint"></span></summary>
@@ -114,6 +122,6 @@
       </details>
     </section>
   </main>
-  <script src="/static/app.js?v=20260903-1"></script>
+  <script src="/static/app.js?v=20260917-1"></script>
 </body>
 </html>
